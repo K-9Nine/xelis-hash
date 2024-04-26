@@ -53,12 +53,12 @@ impl Default for Input {
         if BYTES_ARRAY_INPUT % 8 != 0 {
             n += 1;
         }
-    
+
         Self {
             data: vec![Bytes8Alignment([0; 8]); n]
         }
     }
-} 
+}
 
 impl Input {
     pub fn len(&self) -> usize {
@@ -101,22 +101,24 @@ fn stage_1(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_S
 
         let mut rand_int: u64 = 0;
         for j in b.0..=b.1 {
-            let pair_idx = (j + 1) % KECCAK_WORDS;
-            let pair_idx2 = (j + 2) % KECCAK_WORDS;
+            let pair_idx = (j + 1) & (KECCAK_WORDS - 1); // Bitwise AND for modulo by power of 2
+            let pair_idx2 = (j + 2) & (KECCA_WORDS - 1);
 
             let target_idx = i * KECCAK_WORDS + j;
             let a = int_input[j] ^ rand_int;
-            // Branching
-            let left = int_input[pair_idx];
-            let right = int_input[pair_idx2];
-            let xor = left ^ right;
-            let v = match xor & 0x3 {
-                0 => left & right,
-                1 => !(left & right),
-                2 => !xor,
-                3 => xor,
-                _ => unreachable!(),
-            };
+
+            // Pre-calculate XOR result for potential SIMD opportunity
+            let xor = int_input[pair_idx] ^ int_input[pair_idx2];
+
+            // Conditional selection using table lookup (consider for larger KECCAK_WORDS)
+            let selection_table = [
+                left & right, // 0
+                !(left & right), // 1
+                !xor, // 2
+                xor, // 3
+            ];
+            let v = selection_table[(xor & 0x3) as usize];
+
             let b = a ^ v;
             rand_int = b;
             scratch_pad[target_idx] = b;
