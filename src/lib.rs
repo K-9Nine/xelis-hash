@@ -109,6 +109,10 @@ fn stage_1(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_S
 
             // Pre-calculate XOR result for potential SIMD opportunity
             let xor = int_input[pair_idx] ^ int_input[pair_idx2];
+            
+            // Defined here
+            let left = int_input[pair_idx];
+            let right = int_input[pair_idx2]; 
 
             // Conditional selection using table lookup (consider for larger KECCAK_WORDS)
             let selection_table = [
