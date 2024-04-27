@@ -102,7 +102,7 @@ fn stage_1(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_S
         let mut rand_int: u64 = 0;
         for j in b.0..=b.1 {
             let pair_idx = (j + 1) & (KECCAK_WORDS - 1); // Bitwise AND for modulo by power of 2
-            let pair_idx2 = (j + 2) & (KECCA_WORDS - 1);
+            let pair_idx2 = (j + 2) & (KECCAK_WORDS - 1);
 
             let target_idx = i * KECCAK_WORDS + j;
             let a = int_input[j] ^ rand_int;
