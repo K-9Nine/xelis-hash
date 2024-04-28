@@ -91,6 +91,7 @@ pub fn xelis_hash_scratch_pad(input: &mut [u8], scratch_pad: &mut ScratchPad) ->
 
 #[inline]
 fn stage_1(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_SIZE], a: (usize, usize), b: (usize, usize)) {
+    
     for i in a.0..=a.1 {
         keccakp(int_input);
 
@@ -128,9 +129,8 @@ pub fn xelis_hash(input: &mut [u8], scratch_pad: &mut [u64; MEMORY_SIZE]) -> Res
         return Err(Error);
     }
 
-    let int_input: &mut [u64; KECCAK_WORDS] = unsafe {
-        std::mem::transmute(&mut input[0..BYTES_ARRAY_INPUT])
-    };
+    let int_input: &mut [u64; KECCAK_WORDS] = bytemuck::try_from_bytes_mut(&mut input[0..BYTES_ARRAY_INPUT])
+        .map_err(|_| Error)?;
 
     // stage 1
     stage_1(int_input, scratch_pad, (0, STAGE_1_MAX - 1), (0, KECCAK_WORDS - 1));
