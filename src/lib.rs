@@ -149,7 +149,11 @@ pub fn xelis_hash(input: &mut [u8], scratch_pad: &mut [u64; MEMORY_SIZE]) -> Res
     // stage 2
     #[inline(always)]
     fn stage_2(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_SIZE], a: (usize, usize), b: (usize, usize)) {
-      for j in 0..small_pad.len() / SLOT_LENGTH {
+        let mut small_pad: &mut [u32; MEMORY_SIZE * 2] = bytemuck::try_cast_slice_mut(scratch_pad)
+            .map_err(|_| Error)?
+            .try_into()
+            .map_err(|_| Error)?;
+        for j in 0..small_pad.len() / SLOT_LENGTH {
             // Initialize indices
             for k in 0..SLOT_LENGTH {
                 indices[k] = k as u16;
