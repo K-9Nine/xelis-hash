@@ -282,7 +282,7 @@ pub fn xelis_hash(input: &mut [u8], scratch_pad: &mut [u64; MEMORY_SIZE]) -> Res
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{time::Instant, hint};
+    use std::{hint, time::Instant};
 
     fn test_input(input: &mut [u8], expected_hash: Hash) {
         let mut scratch_pad = [0u64; MEMORY_SIZE];
@@ -329,7 +329,23 @@ mod tests {
         input[0..custom.len()].copy_from_slice(custom);
 
         let expected_hash = [
-            106, 106, 173, 8, 207, 59, 118, 108, 176, 196, 9, 124, 250, 195, 3,
-            61, 30, 146, 238, 182, 88, 83, 115, 81, 139, 56, 3, 28, 176, 86, 68, 21
+            106, 106, 173, 8, 207, 59, 118, 108, 176, 196, 9, 124, 250, 195, 3, 61, 30, 146, 238,
+            182, 88, 83, 115, 81, 139, 56, 3, 28, 176, 86, 68, 21,
         ];
-        test_input
+        test_input(&mut input, expected_hash);
+    }
+    
+    #[test]
+    fn test_scratch_pad() {
+        let mut scratch_pad = ScratchPad::default();
+        let mut input = Input::default();
+
+        let hash = xelis_hash_scratch_pad(input.as_mut_slice().unwrap(), &mut scratch_pad).unwrap();
+        let expected_hash = [
+            0x0e, 0xbb, 0xbd, 0x8a, 0x31, 0xed, 0xad, 0xfe, 0x09, 0x8f, 0x2d, 0x77, 0x0d, 0x84,
+            0xb7, 0x19, 0x58, 0x86, 0x75, 0xab, 0x88, 0xa0, 0xa1, 0x70, 0x67, 0xd0, 0x0a, 0x8f,
+            0x36, 0x18, 0x22, 0x65,
+        ];
+        assert_eq!(hash, expected_hash);
+    }
+}
