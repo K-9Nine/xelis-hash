@@ -157,7 +157,7 @@ pub fn xelis_hash(input: &mut [u8], scratch_pad: &mut [u64; MEMORY_SIZE]) -> Res
             for slot_idx in (0..SLOT_LENGTH).rev() {
                 let index_in_indices = (chunk[slot_idx] % (slot_idx as u32 + 1)) as usize;
                 let index = indices[index_in_indices] as usize;
-                std::mem::swap(&mut indices[index_in_indices], &mut indices[slot_idx]);
+                indices.swap(index_in_indices, slot_idx);
 
                 #[cfg(feature = "nightly")]
                 {
