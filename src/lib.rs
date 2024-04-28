@@ -147,18 +147,9 @@ pub fn xelis_hash(input: &mut [u8], scratch_pad: &mut [u64; MEMORY_SIZE]) -> Res
     stage_1(int_input, scratch_pad, (STAGE_1_MAX, STAGE_1_MAX), (0, 17));
 
     // stage 2
-    let mut slots: [u32; SLOT_LENGTH] = [0; SLOT_LENGTH];
-    // this is equal to MEMORY_SIZE, just in u32 format
-    let small_pad: &mut [u32; MEMORY_SIZE * 2] = bytemuck::try_cast_slice_mut(scratch_pad)
-        .map_err(|_| Error)?
-        .try_into()
-        .map_err(|_| Error)?;
-
-    slots.copy_from_slice(&small_pad[small_pad.len() - SLOT_LENGTH..]);
-
-    let mut indices: [u16; SLOT_LENGTH] = [0; SLOT_LENGTH];
-    for _ in 0..ITERS {
-        for j in 0..small_pad.len() / SLOT_LENGTH {
+    #[inline(always)]
+    fn stage_2(int_input: &mut [u64; KECCAK_WORDS], scratch_pad: &mut [u64; MEMORY_SIZE], a: (usize, usize), b: (usize, usize)) {
+      for j in 0..small_pad.len() / SLOT_LENGTH {
             // Initialize indices
             for k in 0..SLOT_LENGTH {
                 indices[k] = k as u16;
